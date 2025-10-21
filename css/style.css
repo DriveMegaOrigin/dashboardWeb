@@ -1,7 +1,7 @@
 body {
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   padding: 1rem;
-  background: #ffffff; /* fundo branco solicitado */
+  background: #000000; /* fundo preto */
   color: #111827; /* texto escuro */
 }
 
@@ -26,14 +26,13 @@ body {
 }
 
 /* Ponteiros laranja */
-#hourHand, #minuteHand, #secondHand {
+#hourHand, #minuteHand {
   stroke: #ff8a00; /* laranja */
-  stroke-width: 2.6;
+  stroke-width: 2;
   transform-origin: 50% 50%;
 }
-#hourHand { stroke-width: 3.2; }
-#minuteHand { stroke-width: 2.8; }
-#secondHand { stroke-width: 1.6; opacity: 0.95; }
+#hourHand { stroke-width: 2.4; }
+#minuteHand { stroke-width: 2; }
 
 .center-dot { fill: #ff8a00; }
 

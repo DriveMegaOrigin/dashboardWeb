@@ -14,22 +14,18 @@ async function fetchTime() {
 function setHands(date) {
     const hourEl = document.getElementById('hourHand');
     const minuteEl = document.getElementById('minuteHand');
-    const secondEl = document.getElementById('secondHand');
-    if (!hourEl || !minuteEl || !secondEl) return;
+    if (!hourEl || !minuteEl) return;
 
     const hours = date.getHours() % 12;
     const minutes = date.getMinutes();
     const seconds = date.getSeconds();
-    const millis = date.getMilliseconds ? date.getMilliseconds() : 0;
 
     // Cálculo de ângulos
     const hourAngle = (hours + minutes / 60) * 30; // 360/12 = 30
     const minuteAngle = (minutes + seconds / 60) * 6; // 360/60 = 6
-    const secondAngle = (seconds + millis / 1000) * 6;
 
     hourEl.setAttribute('transform', `rotate(${hourAngle} 50 50)`);
     minuteEl.setAttribute('transform', `rotate(${minuteAngle} 50 50)`);
-    secondEl.setAttribute('transform', `rotate(${secondAngle} 50 50)`);
 }
 
 let useRemote = true;
