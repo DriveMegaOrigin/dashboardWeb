@@ -3,11 +3,55 @@
 <head>
     <title>Dashboard Information</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="css/style.css">
+        <!-- Bootstrap CSS (CDN) -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<h1>Relógio</h1>
-<div id="relogio"></div>
+<div class="container py-4">
+    <h1 class="mb-4">Dashboard</h1>
+
+    <div class="row g-3">
+        <!-- Card 1: relógio analógico -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="ratio ratio-4x3 card p-3 d-flex align-items-center justify-content-center">
+                <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                    <!-- SVG relógio -->
+                    <svg id="svgRelogio" viewBox="0 0 100 100" class="analog-clock" role="img" aria-label="Relógio">
+                        <circle cx="50" cy="50" r="48" class="clock-face" />
+                        <!-- hour marks -->
+                        <g class="marks">
+                            <!-- generated via CSS/JS or static lines -->
+                            <line x1="50" y1="6" x2="50" y2="12" />
+                            <line x1="50" y1="94" x2="50" y2="88" />
+                            <line x1="6" y1="50" x2="12" y2="50" />
+                            <line x1="94" y1="50" x2="88" y2="50" />
+                        </g>
+                        <g id="hands">
+                            <line id="hourHand" x1="50" y1="50" x2="50" y2="30" stroke-linecap="round" />
+                            <line id="minuteHand" x1="50" y1="50" x2="50" y2="18" stroke-linecap="round" />
+                            <line id="secondHand" x1="50" y1="52" x2="50" y2="12" stroke-linecap="round" />
+                        </g>
+                        <circle cx="50" cy="50" r="1.8" class="center-dot" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards 2-4: placeholders -->
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="ratio ratio-4x3 card p-3">Card 2</div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="ratio ratio-4x3 card p-3">Card 3</div>
+        </div>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="ratio ratio-4x3 card p-3">Card 4</div>
+        </div>
+    </div>
+  
+</div>
+
 <script src="js/script.js" defer></script>
 </body>
 </html>

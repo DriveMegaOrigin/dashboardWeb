@@ -1,14 +1,43 @@
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   padding: 1rem;
-  background: #000000;
-  color: #222;
+  background: #0f1724; /* escuro */
+  color: #e6eef8;
 }
 
-#relogio {
-  font-size: 2rem;
-  font-weight: 600;
-  margin-top: 0.5rem;
+/* Card tweaks */
+.card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 0.5rem;
 }
 
-h1 { color: #111; }
+/* Analog clock styles */
+.analog-clock { width: 100%; height: auto; max-width: 220px; }
+.analog-clock .clock-face {
+  fill: #071023;
+  stroke: #2b3440;
+  stroke-width: 0.8;
+}
+.analog-clock .marks line {
+  stroke: rgba(255,255,255,0.15);
+  stroke-width: 0.9;
+}
+
+/* Ponteiros laranja */
+#hourHand, #minuteHand, #secondHand {
+  stroke: #ff8a00; /* laranja */
+  stroke-width: 2.6;
+  transform-origin: 50% 50%;
+}
+#hourHand { stroke-width: 3.2; }
+#minuteHand { stroke-width: 2.8; }
+#secondHand { stroke-width: 1.6; opacity: 0.95; }
+
+.center-dot { fill: #ff8a00; }
+
+h1 { color: #e6eef8; }
+
+/* Responsividade para os cards 4:3 manterem boa aparência */
+.ratio-4x3 { aspect-ratio: 4/3; }
+
