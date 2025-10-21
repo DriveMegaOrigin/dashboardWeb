@@ -5,13 +5,18 @@
     <meta charset="UTF-8">
     <script>
         async function atualizarRelogio() {
+            const el = document.getElementById('relogio');
+            if (!el) return; // evita erros se o elemento não existir
             try {
                 const resposta = await fetch('https://worldtimeapi.org/api/timezone/Europe/Lisbon');
+                if (!resposta.ok) throw new Error('Resposta não OK: ' + resposta.status);
                 const dados = await resposta.json();
                 const dataHora = new Date(dados.datetime);
-                document.getElementById('relogio').textContent = dataHora.toLocaleTimeString('pt-PT');
+                el.textContent = dataHora.toLocaleTimeString('pt-PT');
             } catch (e) {
-                document.getElementById('relogio').textContent = 'Erro ao obter hora';
+                console.error('Erro ao obter hora remota:', e);
+                // fallback para hora local do cliente
+                el.textContent = new Date().toLocaleTimeString('pt-PT') + ' (hora local)';
             }
         }
 
@@ -21,6 +26,6 @@
 </head>
 <body>
 <h1>Relógio</h1>
-<div id="relogiaaao"></div>
+<div id="relogio"></div>
 </body>
 </html>
