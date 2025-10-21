@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <title>Dashboard Information</title>
+    <meta charset="UTF-8">
+    <script>
+        async function atualizarRelogio() {
+            try {
+                const resposta = await fetch('https://worldtimeapi.org/api/timezone/Europe/Lisbon');
+                const dados = await resposta.json();
+                const dataHora = new Date(dados.datetime);
+                document.getElementById('relogio').textContent = dataHora.toLocaleTimeString('pt-PT');
+            } catch (e) {
+                document.getElementById('relogio').textContent = 'Erro ao obter hora';
+            }
+        }
+
+        setInterval(atualizarRelogio, 1000);
+        window.onload = atualizarRelogio;
+    </script>
+</head>
+<body>
+<h1>Relógio</h1>
+<div id="relogiaaao"></div>
+</body>
+</html>
