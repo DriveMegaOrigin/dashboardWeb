@@ -1,0 +1,14 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 1rem;
+  background: #f7f7f8;
+  color: #222;
+}
+
+#relogio {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+h1 { color: #111; }

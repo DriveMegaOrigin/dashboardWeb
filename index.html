@@ -3,29 +3,11 @@
 <head>
     <title>Dashboard Information</title>
     <meta charset="UTF-8">
-    <script>
-        async function atualizarRelogio() {
-            const el = document.getElementById('relogio');
-            if (!el) return; // evita erros se o elemento não existir
-            try {
-                const resposta = await fetch('https://worldtimeapi.org/api/timezone/Europe/Lisbon');
-                if (!resposta.ok) throw new Error('Resposta não OK: ' + resposta.status);
-                const dados = await resposta.json();
-                const dataHora = new Date(dados.datetime);
-                el.textContent = dataHora.toLocaleTimeString('pt-PT');
-            } catch (e) {
-                console.error('Erro ao obter hora remota:', e);
-                // fallback para hora local do cliente
-                el.textContent = new Date().toLocaleTimeString('pt-PT') + ' (hora local)';
-            }
-        }
-
-        setInterval(atualizarRelogio, 1000);
-        window.onload = atualizarRelogio;
-    </script>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <h1>Relógio</h1>
 <div id="relogio"></div>
+<script src="js/script.js" defer></script>
 </body>
 </html>
