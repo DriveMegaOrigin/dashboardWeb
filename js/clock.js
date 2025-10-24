@@ -2,9 +2,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const clockCard = document.getElementById("clockCard");
   const clockModal = new bootstrap.Modal(document.getElementById("clockModal"));
 
-  clockCard.addEventListener("click", () => {
-    clockModal.show();
-  });
+  if (clockCard) {
+    clockCard.addEventListener("click", () => {
+      clockModal.show();
+    });
+  }
 
   let offset = 0;
 
@@ -15,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       const serverTime = new Date(data.datetime);
       offset = serverTime.getTime() - Date.now(); // diferença entre servidor e hora local
-      console.log("Sincronizado com servidor NTP (Portugal).");
+      console.log("Sincronizado com servidor NTP (Portugal). Offset:", offset);
     } catch (error) {
       console.error("Erro ao sincronizar com o servidor de tempo:", error);
     }
@@ -43,12 +45,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // Sincroniza com servidor a cada 5 minutos
   syncServerTime();
   setInterval(syncServerTime, 5 * 60 * 1000);
-});
 
-const pomodoroDisplay = document.getElementById("pomodoro-timer");
+  // --- Código do Pomodoro (agora dentro do DOMContentLoaded) ---
+  const pomodoroDisplay = document.getElementById("pomodoro-timer");
   const startBtn = document.getElementById("startPomodoro");
   const pauseBtn = document.getElementById("pausePomodoro");
   const resetBtn = document.getElementById("resetPomodoro");
+
+  // Se algum elemento não existir, não tenta ligar eventos
+  if (!pomodoroDisplay) {
+    // Não encontra o elemento do pomodoro — nada a fazer
+    console.warn("Pomodoro elements not found in DOM.");
+    return;
+  }
 
   let pomodoroDuration = 25 * 60; // 25 minutos
   let remainingTime = pomodoroDuration;
@@ -73,7 +82,11 @@ const pomodoroDisplay = document.getElementById("pomodoro-timer");
       if (remainingTime <= 0) {
         clearInterval(timer);
         running = false;
-        new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play();
+        try {
+          new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play();
+        } catch (e) {
+          /* ignored */
+        }
         alert("Sessão de foco concluída! Faz uma pausa. ☕");
         remainingTime = pomodoroDuration;
         updatePomodoroDisplay();
@@ -94,8 +107,9 @@ const pomodoroDisplay = document.getElementById("pomodoro-timer");
     updatePomodoroDisplay();
   }
 
-  startBtn.addEventListener("click", startPomodoro);
-  pauseBtn.addEventListener("click", pausePomodoro);
-  resetBtn.addEventListener("click", resetPomodoro);
+  if (startBtn) startBtn.addEventListener("click", startPomodoro);
+  if (pauseBtn) pauseBtn.addEventListener("click", pausePomodoro);
+  if (resetBtn) resetBtn.addEventListener("click", resetPomodoro);
 
   updatePomodoroDisplay();
+});
