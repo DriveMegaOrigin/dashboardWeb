@@ -80,7 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const cycleMinutes = (focusDuration + breakDuration) / 60;
-        totalCycles = Math.floor(totalMinutes / cycleMinutes);
+        totalCycles = Math.max(1, Math.floor(totalMinutes / cycleMinutes));
 
         const totalEffective = totalCycles * cycleMinutes;
         const now = new Date();
@@ -90,8 +90,16 @@ document.addEventListener("DOMContentLoaded", () => {
           planOutput.innerHTML = `\n            <strong>${totalCycles}</strong> Pomodoros de 25 min + 5 min pausa.<br>\n            Duração total: <strong>${totalEffective.toFixed(1)} min</strong><br>\n            Término estimado: <strong>${endTime.toLocaleTimeString("pt-PT", {hour: '2-digit', minute: '2-digit'})}</strong>\n          `;
         }
 
+        // Reset any running timer and state, then start immediately
+        clearInterval(timer);
+        running = false;
+        currentCycle = 1;
+        isBreak = false;
         remaining = focusDuration;
         updateTimerDisplay();
+
+        // Start counting immediately after planning
+        startPomodoro();
       });
     }
 

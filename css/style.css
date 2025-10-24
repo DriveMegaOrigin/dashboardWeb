@@ -7,9 +7,30 @@ body {
   border-radius: 1rem;
   transition: transform 0.2s ease;
 }
-.card:hover {
+
+/* Only cards with the 'interactive' class scale on hover (prevents non-clickable cards from appearing interactive) */
+.card.interactive:hover {
   transform: scale(1.03);
   cursor: pointer;
+}
+
+/* Pomodoro card specific layout improvements */
+.pomodoro-card .card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.pomodoro-card input#studyTime {
+  max-width: 220px;
+}
+.pomodoro-card .btn {
+  min-width: 80px;
+  margin: 0 0.25rem;
+}
+.pomodoro-card #pomodoroPlan {
+  text-align: center;
+  min-height: 2rem;
 }
 
 /* Relógio base */
