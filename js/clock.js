@@ -169,70 +169,44 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTimerDisplay();
   }
 
-    // ---------- WEATHER (Meteorologia) ----------
+    // ---------- WEATHER (Meteorologia) - usando OpenWeather (integração solicitada) ----------
     const weatherLocation = document.getElementById("weather-location");
     const weatherTemp = document.getElementById("weather-temp");
     const weatherDesc = document.getElementById("weather-desc");
     const weatherIcon = document.getElementById("weather-icon");
 
-    // Map Open-Meteo weathercode to emoji + description
-    function mapWeatherCode(code) {
-      // Basic mapping covering common codes
-      const map = {
-        0: ['☀️','Céu limpo'],
-        1: ['🌤️','Pouco nublado'],
-        2: ['⛅','Parcialmente nublado'],
-        3: ['☁️','Nublado'],
-        45: ['🌫️','Neblina'],
-        48: ['🌫️','Nevoeiro'],
-        51: ['🌦️','Chuvisco leve'],
-        53: ['🌦️','Chuvisco moderado'],
-        55: ['🌦️','Chuvisco forte'],
-        61: ['🌧️','Chuva fraca'],
-        63: ['🌧️','Chuva moderada'],
-        65: ['🌧️','Chuva forte'],
-        71: ['❄️','Neve fraca'],
-        73: ['❄️','Neve moderada'],
-        75: ['❄️','Neve forte'],
-        80: ['🌧️','Aguaceiros fracos'],
-        81: ['🌧️','Aguaceiros'],
-        82: ['🌧️','Aguaceiros fortes'],
-        95: ['⛈️','Trovoada'],
-        96: ['⛈️','Trovoada com granizo leve'],
-        99: ['⛈️','Trovoada com granizo forte']
-      };
-      return map[code] || ['🌈','Tempo desconhecido'];
-    }
+    // Config (conforme pedido) - NOTA: a chave foi fornecida pelo utilizador
+    const apiKey = "9f8100f56ad055f87711bf910f17287c";
+    const city = "Leiria,PT";
 
-    async function fetchWeather() {
-      if (!weatherTemp) return;
+    async function fetchWeatherOpenWeather() {
       try {
-        // Lisboa coordinates
-        const lat = 38.72;
-        const lon = -9.14;
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=celsius&timezone=Europe%2FLisbon`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Network response not ok');
-        const data = await res.json();
-        const cw = data.current_weather;
-        if (!cw) throw new Error('No current_weather');
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&lang=pt&appid=${apiKey}`
+        );
+        if (!response.ok) throw new Error(`OpenWeather response ${response.status}`);
+        const data = await response.json();
 
-        const temp = Math.round(cw.temperature);
-        const code = cw.weathercode;
-        const [emoji, desc] = mapWeatherCode(code);
-
-        if (weatherLocation) weatherLocation.textContent = 'Lisboa';
-        weatherTemp.textContent = `${temp}°C`;
-        weatherDesc.textContent = `${emoji} ${desc}`;
-        // We don't have hosted icons; hide image and use emoji in text
-        if (weatherIcon) weatherIcon.style.display = 'none';
+        if (weatherLocation) weatherLocation.textContent = data.name || 'Leiria';
+        if (weatherTemp) weatherTemp.textContent = `${Math.round(data.main.temp)}°C`;
+        if (weatherDesc) weatherDesc.textContent = data.weather?.[0]?.description || '';
+        if (weatherIcon) {
+          const icon = data.weather?.[0]?.icon;
+          if (icon) {
+            weatherIcon.src = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+            weatherIcon.alt = data.weather?.[0]?.description || 'Ícone';
+            weatherIcon.style.display = '';
+          } else {
+            weatherIcon.style.display = 'none';
+          }
+        }
       } catch (err) {
-        console.error('Erro ao obter meteorologia:', err);
-        if (weatherDesc) weatherDesc.textContent = 'Erro ao carregar meteorologia';
+        console.error('Erro ao buscar dados do tempo:', err);
+        if (weatherDesc) weatherDesc.textContent = 'Não foi possível obter o tempo.';
       }
     }
 
-    // Fetch now and every 10 minutes
-    fetchWeather();
-    setInterval(fetchWeather, 10 * 60 * 1000);
+    // Fetch now and every 3 hours
+    fetchWeatherOpenWeather();
+    setInterval(fetchWeatherOpenWeather, 3 * 60 * 60 * 1000);
 });
