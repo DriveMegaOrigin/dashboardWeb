@@ -168,4 +168,71 @@ document.addEventListener("DOMContentLoaded", () => {
     remaining = focusDuration;
     updateTimerDisplay();
   }
+
+    // ---------- WEATHER (Meteorologia) ----------
+    const weatherLocation = document.getElementById("weather-location");
+    const weatherTemp = document.getElementById("weather-temp");
+    const weatherDesc = document.getElementById("weather-desc");
+    const weatherIcon = document.getElementById("weather-icon");
+
+    // Map Open-Meteo weathercode to emoji + description
+    function mapWeatherCode(code) {
+      // Basic mapping covering common codes
+      const map = {
+        0: ['☀️','Céu limpo'],
+        1: ['🌤️','Pouco nublado'],
+        2: ['⛅','Parcialmente nublado'],
+        3: ['☁️','Nublado'],
+        45: ['🌫️','Neblina'],
+        48: ['🌫️','Nevoeiro'],
+        51: ['🌦️','Chuvisco leve'],
+        53: ['🌦️','Chuvisco moderado'],
+        55: ['🌦️','Chuvisco forte'],
+        61: ['🌧️','Chuva fraca'],
+        63: ['🌧️','Chuva moderada'],
+        65: ['🌧️','Chuva forte'],
+        71: ['❄️','Neve fraca'],
+        73: ['❄️','Neve moderada'],
+        75: ['❄️','Neve forte'],
+        80: ['🌧️','Aguaceiros fracos'],
+        81: ['🌧️','Aguaceiros'],
+        82: ['🌧️','Aguaceiros fortes'],
+        95: ['⛈️','Trovoada'],
+        96: ['⛈️','Trovoada com granizo leve'],
+        99: ['⛈️','Trovoada com granizo forte']
+      };
+      return map[code] || ['🌈','Tempo desconhecido'];
+    }
+
+    async function fetchWeather() {
+      if (!weatherTemp) return;
+      try {
+        // Lisboa coordinates
+        const lat = 38.72;
+        const lon = -9.14;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=celsius&timezone=Europe%2FLisbon`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Network response not ok');
+        const data = await res.json();
+        const cw = data.current_weather;
+        if (!cw) throw new Error('No current_weather');
+
+        const temp = Math.round(cw.temperature);
+        const code = cw.weathercode;
+        const [emoji, desc] = mapWeatherCode(code);
+
+        if (weatherLocation) weatherLocation.textContent = 'Lisboa';
+        weatherTemp.textContent = `${temp}°C`;
+        weatherDesc.textContent = `${emoji} ${desc}`;
+        // We don't have hosted icons; hide image and use emoji in text
+        if (weatherIcon) weatherIcon.style.display = 'none';
+      } catch (err) {
+        console.error('Erro ao obter meteorologia:', err);
+        if (weatherDesc) weatherDesc.textContent = 'Erro ao carregar meteorologia';
+      }
+    }
+
+    // Fetch now and every 10 minutes
+    fetchWeather();
+    setInterval(fetchWeather, 10 * 60 * 1000);
 });
