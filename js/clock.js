@@ -46,70 +46,118 @@ document.addEventListener("DOMContentLoaded", () => {
   syncServerTime();
   setInterval(syncServerTime, 5 * 60 * 1000);
 
-  // --- Código do Pomodoro (agora dentro do DOMContentLoaded) ---
-  const pomodoroDisplay = document.getElementById("pomodoro-timer");
+  // ---------- POMODORO INTELIGENTE ----------
+  const studyInput = document.getElementById("studyTime");
+  const planBtn = document.getElementById("planPomodoro");
+  const planOutput = document.getElementById("pomodoroPlan");
+  const timerDisplay = document.getElementById("pomodoro-timer");
   const startBtn = document.getElementById("startPomodoro");
   const pauseBtn = document.getElementById("pausePomodoro");
   const resetBtn = document.getElementById("resetPomodoro");
 
-  // Se algum elemento não existir, não tenta ligar eventos
-  if (!pomodoroDisplay) {
-    // Não encontra o elemento do pomodoro — nada a fazer
-    console.warn("Pomodoro elements not found in DOM.");
-    return;
-  }
+  // Defensive checks
+  if (!timerDisplay) {
+    console.warn("Pomodoro elements not found in DOM. Skipping pomodoro setup.");
+  } else {
+    let totalMinutes = 0;
+    let focusDuration = 25 * 60; // padrão 25 min foco
+    let breakDuration = 5 * 60;  // padrão 5 min pausa
+    let totalCycles = 0;
+    let currentCycle = 1;
+    let isBreak = false;
+    let remaining = 0;
+    let timer = null;
+    let running = false;
+    let endTime = null;
 
-  let pomodoroDuration = 25 * 60; // 25 minutos
-  let remainingTime = pomodoroDuration;
-  let timer = null;
-  let running = false;
-
-  function updatePomodoroDisplay() {
-    const minutes = Math.floor(remainingTime / 60)
-      .toString()
-      .padStart(2, "0");
-    const seconds = (remainingTime % 60).toString().padStart(2, "0");
-    pomodoroDisplay.textContent = `${minutes}:${seconds}`;
-  }
-
-  function startPomodoro() {
-    if (running) return;
-    running = true;
-    timer = setInterval(() => {
-      remainingTime--;
-      updatePomodoroDisplay();
-
-      if (remainingTime <= 0) {
-        clearInterval(timer);
-        running = false;
-        try {
-          new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play();
-        } catch (e) {
-          /* ignored */
+    // Planeia automaticamente os ciclos
+    if (planBtn) {
+      planBtn.addEventListener("click", () => {
+        totalMinutes = parseInt(studyInput?.value);
+        if (isNaN(totalMinutes) || totalMinutes <= 0) {
+          if (planOutput) planOutput.textContent = "⚠️ Introduz um valor válido em minutos.";
+          return;
         }
-        alert("Sessão de foco concluída! Faz uma pausa. ☕");
-        remainingTime = pomodoroDuration;
-        updatePomodoroDisplay();
-      }
-    }, 1000);
+
+        const cycleMinutes = (focusDuration + breakDuration) / 60;
+        totalCycles = Math.floor(totalMinutes / cycleMinutes);
+
+        const totalEffective = totalCycles * cycleMinutes;
+        const now = new Date();
+        endTime = new Date(now.getTime() + totalEffective * 60000);
+
+        if (planOutput) {
+          planOutput.innerHTML = `\n            <strong>${totalCycles}</strong> Pomodoros de 25 min + 5 min pausa.<br>\n            Duração total: <strong>${totalEffective.toFixed(1)} min</strong><br>\n            Término estimado: <strong>${endTime.toLocaleTimeString("pt-PT", {hour: '2-digit', minute: '2-digit'})}</strong>\n          `;
+        }
+
+        remaining = focusDuration;
+        updateTimerDisplay();
+      });
+    }
+
+    function updateTimerDisplay() {
+      const minutes = Math.floor(remaining / 60).toString().padStart(2, "0");
+      const seconds = (remaining % 60).toString().padStart(2, "0");
+      timerDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
+    function startPomodoro() {
+      if (running || totalCycles === 0) return;
+      running = true;
+
+      timer = setInterval(() => {
+        remaining--;
+        updateTimerDisplay();
+
+        if (remaining <= 0) {
+          clearInterval(timer);
+          running = false;
+
+          if (!isBreak) {
+            try { new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg").play(); } catch(e){}
+            if (currentCycle < totalCycles) {
+              isBreak = true;
+              remaining = breakDuration;
+              if (planOutput) planOutput.innerHTML = `☕ Pausa curta — ciclo ${currentCycle} concluído.`;
+              startPomodoro();
+            } else {
+              if (planOutput) planOutput.innerHTML = `✅ Sessão concluída! Bom trabalho!`;
+            }
+          } else {
+            isBreak = false;
+            currentCycle++;
+            remaining = focusDuration;
+            if (currentCycle <= totalCycles) {
+              if (planOutput) planOutput.innerHTML = `🎯 Início do ciclo ${currentCycle}`;
+              startPomodoro();
+            }
+          }
+        }
+      }, 1000);
+    }
+
+    function pausePomodoro() {
+      if (!running) return;
+      clearInterval(timer);
+      running = false;
+    }
+
+    function resetPomodoro() {
+      clearInterval(timer);
+      running = false;
+      currentCycle = 1;
+      isBreak = false;
+      remaining = focusDuration;
+      updateTimerDisplay();
+      if (planOutput) planOutput.textContent = "Sessão reiniciada.";
+    }
+
+    if (startBtn) startBtn.addEventListener("click", startPomodoro);
+    if (pauseBtn) pauseBtn.addEventListener("click", pausePomodoro);
+    if (resetBtn) resetBtn.addEventListener("click", resetPomodoro);
+
+    // Inicializa display
+    remaining = focusDuration;
+    updateTimerDisplay();
   }
-
-  function pausePomodoro() {
-    if (!running) return;
-    running = false;
-    clearInterval(timer);
-  }
-
-  function resetPomodoro() {
-    clearInterval(timer);
-    running = false;
-    remainingTime = pomodoroDuration;
-    updatePomodoroDisplay();
-  }
-
-  if (startBtn) startBtn.addEventListener("click", startPomodoro);
-  if (pauseBtn) pauseBtn.addEventListener("click", pausePomodoro);
-  if (resetBtn) resetBtn.addEventListener("click", resetPomodoro);
-
-  updatePomodoroDisplay();
 });
