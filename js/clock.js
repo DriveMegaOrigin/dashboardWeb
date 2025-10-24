@@ -169,44 +169,89 @@ document.addEventListener("DOMContentLoaded", () => {
     updateTimerDisplay();
   }
 
-    // ---------- WEATHER (Meteorologia) - usando OpenWeather (integração solicitada) ----------
+    // ---------- WEATHER (Meteorologia) - OpenWeather (tempo atual + previsão 3 dias) ----------
+    const weatherCard = document.getElementById("weatherCard");
     const weatherLocation = document.getElementById("weather-location");
     const weatherTemp = document.getElementById("weather-temp");
     const weatherDesc = document.getElementById("weather-desc");
     const weatherIcon = document.getElementById("weather-icon");
+    const weatherModalBody = document.getElementById("weatherModalBody");
+    const weatherModal = new bootstrap.Modal(document.getElementById("weatherModal"));
 
-    // Config (conforme pedido) - NOTA: a chave foi fornecida pelo utilizador
+    // Config (a chave foi fornecida pelo utilizador)
     const apiKey = "9f8100f56ad055f87711bf910f17287c";
     const city = "Leiria,PT";
 
-    async function fetchWeatherOpenWeather() {
+    // --- FUNÇÃO: TEMPO ATUAL ---
+    async function fetchWeatherCurrent() {
       try {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&lang=pt&appid=${apiKey}`
         );
-        if (!response.ok) throw new Error(`OpenWeather response ${response.status}`);
         const data = await response.json();
 
         if (weatherLocation) weatherLocation.textContent = data.name || 'Leiria';
         if (weatherTemp) weatherTemp.textContent = `${Math.round(data.main.temp)}°C`;
-        if (weatherDesc) weatherDesc.textContent = data.weather?.[0]?.description || '';
+        if (weatherDesc) weatherDesc.textContent = data.weather[0].description;
         if (weatherIcon) {
-          const icon = data.weather?.[0]?.icon;
-          if (icon) {
-            weatherIcon.src = `https://openweathermap.org/img/wn/${icon}@2x.png`;
-            weatherIcon.alt = data.weather?.[0]?.description || 'Ícone';
-            weatherIcon.style.display = '';
-          } else {
-            weatherIcon.style.display = 'none';
-          }
+          weatherIcon.src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+          weatherIcon.alt = data.weather[0].description;
+          weatherIcon.style.display = '';
         }
       } catch (err) {
-        console.error('Erro ao buscar dados do tempo:', err);
-        if (weatherDesc) weatherDesc.textContent = 'Não foi possível obter o tempo.';
+        console.error("Erro ao buscar dados do tempo:", err);
+        if (weatherDesc) weatherDesc.textContent = "Não foi possível obter o tempo.";
       }
     }
 
-    // Fetch now and every 3 hours
-    fetchWeatherOpenWeather();
-    setInterval(fetchWeatherOpenWeather, 3 * 60 * 60 * 1000);
+    fetchWeatherCurrent();
+    setInterval(fetchWeatherCurrent, 3 * 60 * 60 * 1000); // Atualiza de 3 em 3 horas
+
+    // --- FUNÇÃO: PREVISÃO 3 DIAS ---
+    async function fetchWeatherForecast() {
+      try {
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&units=metric&lang=pt&appid=${apiKey}`
+        );
+        const data = await response.json();
+
+        // Limpar conteúdo anterior
+        if (weatherModalBody) weatherModalBody.innerHTML = "";
+
+        // Mostrar apenas os próximos 3 dias (aprox. 1 previsão por dia)
+        const forecastByDay = {};
+        data.list.forEach(item => {
+          const date = item.dt_txt.split(" ")[0];
+          if (!forecastByDay[date] && Object.keys(forecastByDay).length < 3) {
+            forecastByDay[date] = item;
+          }
+        });
+
+        Object.values(forecastByDay).forEach(day => {
+          const date = new Date(day.dt * 1000);
+          const dayDiv = document.createElement("div");
+          dayDiv.className = "d-flex flex-column align-items-center p-2 border rounded mb-2";
+          dayDiv.style.width = "90px";
+          dayDiv.innerHTML = `
+            <span class="fw-bold">${date.toLocaleDateString("pt-PT", { weekday: 'short', day: '2-digit', month: '2-digit' })}</span>
+            <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png" alt="${day.weather[0].description}" style="width:50px;height:50px;">
+            <span class="small">${Math.round(day.main.temp_max)}°C / ${Math.round(day.main.temp_min)}°C</span>
+            <span class="small text-light opacity-75">${day.weather[0].description}</span>
+          `;
+          if (weatherModalBody) weatherModalBody.appendChild(dayDiv);
+        });
+
+      } catch (err) {
+        console.error("Erro ao buscar previsão:", err);
+        if (weatherModalBody) weatherModalBody.textContent = "Não foi possível obter a previsão.";
+      }
+    }
+
+    // --- CLICK NO CARD ABRE MODAL E CARREGA PREVISÃO ---
+    if (weatherCard) {
+      weatherCard.addEventListener("click", () => {
+        fetchWeatherForecast();
+        weatherModal.show();
+      });
+    }
 });
