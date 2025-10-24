@@ -15,41 +15,39 @@ body {
 /* Relógio base */
 .clock {
   position: relative;
+  aspect-ratio: 1/1;
   width: 150px;
-  height: 150px;
   border: 5px solid #43c020;
   border-radius: 50%;
   margin: 0 auto;
   background: white;
 }
 
-/* Ponteiros */
+/* Ponteiros (proporcionais e centrados) */
 .clock::before,
 .clock::after,
 .clock div::before {
   content: "";
   position: absolute;
   left: 50%;
+  bottom: 50%;
   transform-origin: bottom center;
-  background: #ff8c00; /* ponteiros laranja */
+  background: #ff8c00;
 }
 
 .clock::before { /* Hora */
   width: 4px;
-  height: 45px;
-  top: 30px;
+  height: 25%;
   transform: rotate(var(--hour, 0deg));
 }
 .clock::after { /* Minuto */
   width: 3px;
-  height: 60px;
-  top: 15px;
+  height: 35%;
   transform: rotate(var(--min, 0deg));
 }
 .clock div::before { /* Segundo */
   width: 2px;
-  height: 70px;
-  top: 5px;
+  height: 45%;
   transform: rotate(var(--sec, 0deg));
   background: #ff8c00;
 }
@@ -69,6 +67,5 @@ body {
 /* Versão ampliada */
 .clock.large {
   width: 300px;
-  height: 300px;
   border-width: 8px;
 }
