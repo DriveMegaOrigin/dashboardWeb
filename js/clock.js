@@ -6,35 +6,41 @@ document.addEventListener("DOMContentLoaded", () => {
     clockModal.show();
   });
 
-  // Atualiza o relógio com a hora do servidor
-  async function updateServerTime() {
+  let offset = 0;
+
+  // Obter hora do servidor (Portugal)
+  async function syncServerTime() {
     try {
-      const response = await fetch('https://worldtimeapi.org/api/ip');
+      const response = await fetch("https://worldtimeapi.org/api/timezone/Europe/Lisbon");
       const data = await response.json();
       const serverTime = new Date(data.datetime);
-      
-      const seconds = serverTime.getSeconds();
-      const minutes = serverTime.getMinutes();
-      const hours = serverTime.getHours();
-
-      const secondDeg = (seconds / 60) * 360;
-      const minuteDeg = ((minutes + seconds / 60) / 60) * 360;
-      const hourDeg = ((hours % 12 + minutes / 60) / 12) * 360;
-
-      document.documentElement.style.setProperty('--sec', `${secondDeg}deg`);
-      document.documentElement.style.setProperty('--min', `${minuteDeg}deg`);
-      document.documentElement.style.setProperty('--hour', `${hourDeg}deg`);
-
-      // Agenda próxima atualização para exatamente 1 segundo após o timestamp atual do servidor
-      const nextUpdate = 1000 - (serverTime.getMilliseconds());
-      setTimeout(updateServerTime, nextUpdate);
+      offset = serverTime.getTime() - Date.now(); // diferença entre servidor e hora local
+      console.log("Sincronizado com servidor NTP (Portugal).");
     } catch (error) {
-      console.error('Error fetching server time:', error);
-      // Em caso de erro, tenta novamente após 1 segundo
-      setTimeout(updateServerTime, 1000);
+      console.error("Erro ao sincronizar com o servidor de tempo:", error);
     }
   }
 
-  // Inicia a atualização do relógio
-  updateServerTime();
+  // Atualiza ponteiros conforme a hora sincronizada
+  function updateClock() {
+    const now = new Date(Date.now() + offset);
+
+    const seconds = now.getSeconds();
+    const minutes = now.getMinutes();
+    const hours = now.getHours();
+
+    const secondDeg = (seconds / 60) * 360;
+    const minuteDeg = ((minutes + seconds / 60) / 60) * 360;
+    const hourDeg = ((hours % 12 + minutes / 60) / 12) * 360;
+
+    document.documentElement.style.setProperty("--sec", `${secondDeg}deg`);
+    document.documentElement.style.setProperty("--min", `${minuteDeg}deg`);
+    document.documentElement.style.setProperty("--hour", `${hourDeg}deg`);
+  }
+
+  // Atualiza a cada segundo
+  setInterval(updateClock, 1000);
+  // Sincroniza com servidor a cada 5 minutos
+  syncServerTime();
+  setInterval(syncServerTime, 5 * 60 * 1000);
 });

@@ -2,11 +2,11 @@ body {
   background-color: #2b2b2b;
 }
 
+/* Cards */
 .card {
   border-radius: 1rem;
   transition: transform 0.2s ease;
 }
-
 .card:hover {
   transform: scale(1.03);
   cursor: pointer;
@@ -17,10 +17,10 @@ body {
   position: relative;
   width: 150px;
   height: 150px;
-  border: 5px solid #fff;
+  border: 5px solid #43c020;
   border-radius: 50%;
   margin: 0 auto;
-  background: radial-gradient(circle, #555 0%, #333 100%);
+  background: white;
 }
 
 /* Ponteiros */
@@ -29,41 +29,37 @@ body {
 .clock div::before {
   content: "";
   position: absolute;
-  background: #fff;
   left: 50%;
   transform-origin: bottom center;
+  background: #ff8c00; /* ponteiros laranja */
 }
 
-.clock::before {
-  width: 3px;
+.clock::before { /* Hora */
+  width: 4px;
   height: 45px;
   top: 30px;
-  transform: rotate(0deg);
-  animation: hourMove 43200s linear infinite;
+  transform: rotate(var(--hour, 0deg));
 }
-
-.clock::after {
-  width: 2px;
+.clock::after { /* Minuto */
+  width: 3px;
   height: 60px;
   top: 15px;
-  transform: rotate(0deg);
-  animation: minuteMove 3600s linear infinite;
+  transform: rotate(var(--min, 0deg));
 }
-
-.clock div::before {
-  width: 1px;
+.clock div::before { /* Segundo */
+  width: 2px;
   height: 70px;
   top: 5px;
-  transform: rotate(0deg);
-  animation: secondMove 60s linear infinite;
+  transform: rotate(var(--sec, 0deg));
+  background: #ff8c00;
 }
 
-/* Centro do relógio */
+/* Centro */
 .clock div {
   position: absolute;
   width: 10px;
   height: 10px;
-  background: #fff;
+  background: #ff8c00;
   border-radius: 50%;
   top: 50%;
   left: 50%;
@@ -76,7 +72,3 @@ body {
   height: 300px;
   border-width: 8px;
 }
-
-@keyframes hourMove { to { transform: rotate(360deg); } }
-@keyframes minuteMove { to { transform: rotate(360deg); } }
-@keyframes secondMove { to { transform: rotate(360deg); } }
